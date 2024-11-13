@@ -93,6 +93,12 @@ type Validator[T any] interface {
 	WithFormat(key message.Reference, a ...Arg) Validator[T]
 }
 
+// KeyValueValidator is the interface that validate key/value pair.
+type KeyValueValidator[K comparable, V any] interface {
+	key() (K, bool)
+	Validator[V]
+}
+
 // Error is the interface that wraps Error method.
 type Error interface {
 	error

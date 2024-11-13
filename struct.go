@@ -70,16 +70,20 @@ func (e StructError[P, T]) Error() string {
 	return joinErrors(e.Unwrap()...).Error()
 }
 
-// Unwrap returns each errors of err.
-func (e StructError[P, T]) Unwrap() []error {
-	if len(e.Errors) == 0 {
+func mapToSlice[M ~map[K]V, K comparable, V any](m M) []V {
+	if len(m) == 0 {
 		return nil
 	}
-	errs := make([]error, 0, len(e.Errors))
-	for _, err := range e.Errors {
+	errs := make([]V, 0, len(m))
+	for _, err := range m {
 		errs = append(errs, err)
 	}
 	return errs
+}
+
+// Unwrap returns each errors of err.
+func (e StructError[P, T]) Unwrap() []error {
+	return mapToSlice(e.Errors)
 }
 
 var (
@@ -162,10 +166,7 @@ func (r *structField[T]) validateField(ctx context.Context, base any, key messag
 			errs = append(errs, err)
 		}
 	}
-	if len(errs) > 0 {
-		return joinErrors(errs...)
-	}
-	return nil
+	return joinErrors(errs...)
 }
 
 func wrapErrors(err error, fn func(err error) error) error {
